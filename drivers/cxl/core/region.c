@@ -2660,6 +2660,15 @@ static void __unregister_region(void *_cxlr)
 	return cxl_unregister_region(cxlr);
 }
 
+void cxl_destroy_region(struct cxl_region *cxlr)
+{
+	struct cxl_root_decoder *cxlrd = to_cxl_root_decoder(cxlr->dev.parent);
+	struct cxl_port *port = cxlrd_to_port(cxlrd);
+
+	devm_release_action(port->uport_dev, __unregister_region, cxlr);
+}
+EXPORT_SYMBOL_NS_GPL(cxl_destroy_region, "CXL");
+
 static struct lock_class_key cxl_region_key;
 
 static struct cxl_region *cxl_region_alloc(struct cxl_root_decoder *cxlrd, int id)
